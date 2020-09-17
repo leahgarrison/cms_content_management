@@ -1,0 +1,8 @@
+<form action="/users/signup" method="post">
+  <p>Create an Account</p>
+  <label for="Choose a username:">Username:</label>
+  <input type="text" name="username" id="username" value = <%= params[:username]%>>
+   <label for="password" id="password">Password:</label>
+  <input type="text" name="password">
+  <button type="submit">Sign Up</button>
+</form>

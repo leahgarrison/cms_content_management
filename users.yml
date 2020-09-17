@@ -1,0 +1,23 @@
+---
+admin: "$2a$12$uD6bxTr9s4mZ3i7aD8raSOHfb9FMiDSm.rdEVzohKh0exLelfc3Le"
+goodbye: 
+leah: 
+hi: bye
+admin2: !ruby/string:BCrypt::Password
+  str: "$2a$12$FTH4.e9GPBZok43rAet/pen5zzigwmUz6Q2v4zpXboCsTFhvPzt3K"
+  version: 2a
+  cost: 12
+  salt: "$2a$12$FTH4.e9GPBZok43rAet/pe"
+  checksum: n5zzigwmUz6Q2v4zpXboCsTFhvPzt3K
+Oscar101: !ruby/string:BCrypt::Password
+  str: "$2a$12$Bs6174dmrCCuUaKV4oUFSuKc3RmOgv182KRiJcFv7.enVIA8Twhfm"
+  version: 2a
+  cost: 12
+  salt: "$2a$12$Bs6174dmrCCuUaKV4oUFSu"
+  checksum: Kc3RmOgv182KRiJcFv7.enVIA8Twhfm
+nobody: !ruby/string:BCrypt::Password
+  str: "$2a$12$HjCBAIprbyxYPRs2lHpcK.QRsHtlH2JRyJh2n71899ygboWK.cXhG"
+  version: 2a
+  cost: 12
+  salt: "$2a$12$HjCBAIprbyxYPRs2lHpcK."
+  checksum: QRsHtlH2JRyJh2n71899ygboWK.cXhG

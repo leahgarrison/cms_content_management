@@ -1,0 +1,7 @@
+---
+leah: !ruby/string:BCrypt::Password
+  str: "$2a$12$Qb6baWp64Wpp.KDsk/XIM.heWIlrABiIgjHuPwDGRtAlC/9vcsi.C"
+  version: 2a
+  cost: 12
+  salt: "$2a$12$Qb6baWp64Wpp.KDsk/XIM."
+  checksum: heWIlrABiIgjHuPwDGRtAlC/9vcsi.C
