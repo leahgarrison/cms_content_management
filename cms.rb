@@ -158,7 +158,7 @@ def create_new_version(file_name, updated_data)
 end
 
 post '/:file_name/delete' do |file_name|
-  require_signed_in_user
+  igned_in_user
   file_path = File.join(data_path, file_name)
   File.delete(file_path)
   if !File.exist?(file_path)
@@ -302,7 +302,7 @@ end
 
 
 def require_signed_in_user
-  unless user_signed_in?()
+  unless igned_in?()
     session[:message] = "You must be signed in to do that."
     redirect "/"
   end
