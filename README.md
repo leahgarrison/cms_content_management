@@ -1,8 +1,8 @@
 [Clickable Demo Link](https://rb-175-content-mgt-system.herokuapp.com/)
 
 # Walk through tutorial project 
-# (currently in process - fixing a few bugs)
-# Added multiple features (without a tutorial) -
+## (currently in process - fixing a few bugs)
+## Added multiple features (without a tutorial) -
   * Feature: able to make a document copy
   * Feature: new user sign-up/login
   * Feature: able to edit/view old versions of documents
