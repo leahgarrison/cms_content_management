@@ -6,3 +6,15 @@ user: !ruby/string:BCrypt::Password
   cost: 12
   salt: "$2a$12$9NAqxWso/7RHrXUyx3QlnO"
   checksum: siJfvNPN06uCDiuKPEEtOa9vsPtbCzK
+hi: !ruby/string:BCrypt::Password
+  str: "$2a$12$3KYy/G/5e20KEFkekRMKGeiTwMilHY12pxcVU4G64DmE50cmszcQC"
+  version: 2a
+  cost: 12
+  salt: "$2a$12$3KYy/G/5e20KEFkekRMKGe"
+  checksum: iTwMilHY12pxcVU4G64DmE50cmszcQC
+Oscar101: !ruby/string:BCrypt::Password
+  str: "$2a$12$5ZspwcdIDUp7HvJqfyieDOmu7ULcRGZ5lJCKTXNVwbPvV6CMRXT7e"
+  version: 2a
+  cost: 12
+  salt: "$2a$12$5ZspwcdIDUp7HvJqfyieDO"
+  checksum: mu7ULcRGZ5lJCKTXNVwbPvV6CMRXT7e

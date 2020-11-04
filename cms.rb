@@ -37,25 +37,14 @@ helpers do
 end
 
 def load_user_credentials
-  credentials_path = if ENV["RACK_ENV"] == "test"
-    File.expand_path("../test/users.yml", __FILE__)
+  if ENV["RACK_ENV"] == "test"
+    credentials_path = File.expand_path("../test/users.yml", __FILE__)
   else
-    File.expand_path("../users.yml", __FILE__)
+    credentials_path = File.expand_path("../users.yml", __FILE__)
   end
   YAML.load_file(credentials_path)
 end
 
-get '/' do
-  if user_signed_in?
-    @files = get_file_names(data_path)
-    erb :index, layout: :layout
-  else redirect '/users/signin'
-  end
-end
-
-get '/users/signin' do 
-  erb :signin
-end
 
 def handle_invalid_user_login
    session[:message] = "Invalid Credentials"
@@ -63,149 +52,10 @@ def handle_invalid_user_login
     erb :signin
 end
 
-post '/users/signin' do
-  credentials = load_user_credentials
-  username = params[:username].to_s
-  if !credentials.key?(username)
-    handle_invalid_user_login
-  elsif  credentials.key?(username) 
-    bycrypt_password = BCrypt::Password.new(credentials[username])  # unhashes the saved hash password  #(hash_password, user_input)
-    return handle_invalid_user_login if bycrypt_password != params[:password]
-    session[:username] = username
-    session[:message] = "Welcome!"
-    redirect "/"
-  end
-end
-
-post '/users/signout' do 
-  session.delete(:username)
-  session.delete(:password)
-  session[:message] = "You have been signed out"
-  redirect "/"
-end
-
-get '/new' do 
-  require_signed_in_user
-  erb :new_document
-end
-
-post '/create' do 
-  require_signed_in_user
-  new_doc_name = params[:filename].to_s.strip
-  error = error_for_doc_name(new_doc_name)
-  if error
-    session[:message] = error
-    status 422
-    erb :new_document
-  else 
-    file_path = File.join(data_path, new_doc_name)
-    File.write(file_path, "")
-    session[:message] = "#{new_doc_name} has been created."
-    redirect '/'
-  end
-end
-
-get '/:file_name' do |file_name|
-  basename = File.basename(file_name)
-  file_path = File.join(data_path, basename)
-  if File.exist?(file_path)
-    headers \
-    "Content-Type" => get_header_content_type(file_name)
-    process_file_content(file_path, file_name)
-  else
-    session[:message] = "#{file_name} does not exist."
-    redirect "/"
-  end 
-end
-
-get '/:file_name/edit' do |file_name|
-  require_signed_in_user
-  file_path = File.join(data_path, file_name)
-  @file_content = File.read(file_path)#  process_file_content(file_path)
-  erb :edit_file, layout: :layout
-end
-
-post '/:file_name' do |file_name|
-  require_signed_in_user
-  
-  create_new_version(file_name, params[:file_edit_form])
-
- 
-  # file_path = File.join(data_path, file_name)
-  # File.write(file_path, params[:file_edit_form])
-  session[:message] = "#{file_name} has been updated."
-
-  redirect "/"
-end
-
-
-# def create_past_versions_directory(file_name)
-  
-# end
-def create_new_version(file_name, updated_data)
-    directory_path = past_version_path(file_name)
-  if !Dir.exist?(directory_path)
-    Dir.mkdir(directory_path)
-  end
-  version = (get_file_names(directory_path).size + 1).to_s
-  
-    new_path = directory_path + "/" + get_updated_name(file_name, version)
-    current_path = data_path + "/" + file_name
-    File.write(new_path, "" )
-    FileUtils.mv(current_path, new_path)
-    File.write(current_path, updated_data)
-  
-end
-
-post '/:file_name/delete' do |file_name|
-  igned_in_user
-  file_path = File.join(data_path, file_name)
-  File.delete(file_path)
-  if !File.exist?(file_path)
-    session[:message] = "#{file_name} has been deleted."
-    redirect '/'
-  end
-end
-  
-post '/:filename/duplicate' do |file_name|
-  duplicate_document(file_name)
-  redirect '/'
-end
-
-get '/users/signup' do
-  erb :signup
-end
-
-post '/users/signup' do 
-  error = error_for_username_signup(params[:username])
-  if error
-    session[:message] = error
-    status 422
-    erb :signup
-  else 
-    #load_user_credentials
-    file_path = get_root_file_path() + '/users.yml'
-    hashed_password = hide_password(params[:password])
-    data = YAML.load_file(file_path)
-    data[params[:username]] = hashed_password
-    File.open(file_path, 'w') do |file|
-      file.write(YAML.dump(data))
-    end 
-    session[:message] = "Sign Up Successful. Time to login!"
-    redirect "/users/signin"
-  end 
- end
- 
- get '/:file_name/past_versions' do
-    
-   @files = get_file_names(past_version_path(params[:file_name]))
-  erb :past_versions
-end 
- 
- def past_version_path(file_name)
+def past_version_path(file_name)
    basename = File.basename(file_name, ".*") 
   data_path + "/" + basename + "_past_versions"
-  end
+end
   
  def hide_password(password)
     BCrypt::Password.create(password)  # hashes the plain-text password
@@ -302,7 +152,7 @@ end
 
 
 def require_signed_in_user
-  unless igned_in?()
+  unless user_signed_in?
     session[:message] = "You must be signed in to do that."
     redirect "/"
   end
@@ -327,3 +177,163 @@ def get_updated_name(file_name, end_file_string)
     basename = File.basename(file_name, ".*") 
     basename + end_file_string + file_extension
 end
+
+# def create_past_versions_directory(file_name)
+  
+# end
+def create_new_version(file_name, updated_data)
+    directory_path = past_version_path(file_name)
+  if !Dir.exist?(directory_path)
+    Dir.mkdir(directory_path)
+  end
+  version = (get_file_names(directory_path).size + 1).to_s
+  
+    new_path = directory_path + "/" + get_updated_name(file_name, version)
+    current_path = data_path + "/" + file_name
+    File.write(new_path, "" )
+    FileUtils.mv(current_path, new_path) # take the current version of the file (unedited) and save that as a new previous version file
+    File.write(current_path, updated_data) # take the new edited version and save that in the original file (on the main page)
+  
+end
+
+get '/' do
+  if user_signed_in?
+    @files = get_file_names(data_path)
+    erb :index, layout: :layout
+  else redirect '/users/signin'
+  end
+end
+
+get '/users/signin' do 
+  erb :signin
+end
+
+
+post '/users/signin' do
+  credentials = load_user_credentials
+  username = params[:username].to_s
+  if !credentials.key?(username) # invalid login if username is not found in the list of current users
+    handle_invalid_user_login
+  elsif credentials.key?(username) 
+    bycrypt_password = BCrypt::Password.new(credentials[username])  # unhashes the saved hash password  #(hash_password, user_input)
+    return handle_invalid_user_login if bycrypt_password != params[:password]
+    session[:username] = username
+    session[:message] = "Welcome!"
+    redirect "/"
+  end
+end
+
+post '/users/signout' do 
+  session.delete(:username)
+  session.delete(:password)
+  session[:message] = "You have been signed out"
+  redirect "/"
+end
+
+get '/new' do 
+  require_signed_in_user
+  erb :new_document
+end
+
+post '/create' do 
+  require_signed_in_user
+  new_doc_name = params[:filename].to_s.strip
+  @upload = params[:upload]
+  error = error_for_doc_name(new_doc_name)
+  if error
+    session[:message] = error
+    status 422
+    erb :new_document
+  elsif !params[:filename].nil?
+    file_path = File.join(data_path, new_doc_name)
+    File.write(file_path, "")
+    session[:message] = "#{new_doc_name} has been created."
+    redirect '/'
+  end
+end
+
+def file_upload()
+end
+
+# def create_new_file()
+# end
+
+get '/:file_name' do |file_name|
+  basename = File.basename(file_name)
+  file_path = File.join(data_path, basename)
+  if File.exist?(file_path)
+    headers \
+    "Content-Type" => get_header_content_type(file_name)
+    process_file_content(file_path, file_name)
+  else
+    session[:message] = "#{file_name} does not exist."
+    redirect "/"
+  end 
+end
+
+get '/:file_name/edit' do |file_name|
+  require_signed_in_user
+  file_path = File.join(data_path, file_name)
+  @file_content = File.read(file_path)#  process_file_content(file_path)
+  erb :edit_file, layout: :layout
+end
+
+post '/:file_name' do |file_name|
+  require_signed_in_user
+  
+  create_new_version(file_name, params[:file_edit_form])  # when you edit an existing file, the edit content is saved to a new file. 
+
+ 
+  # file_path = File.join(data_path, file_name)
+  # File.write(file_path, params[:file_edit_form])
+  session[:message] = "#{file_name} has been updated."
+
+  redirect "/"
+end
+
+post '/:file_name/delete' do |file_name|
+  require_signed_in_user
+  file_path = File.join(data_path, file_name)
+  File.delete(file_path)
+  if !File.exist?(file_path)
+    session[:message] = "#{file_name} has been deleted."
+    redirect '/'
+  end
+end
+  
+post '/:filename/duplicate' do |file_name|
+  duplicate_document(file_name)
+  redirect '/'
+end
+
+get '/users/signup' do
+  erb :signup
+end
+
+post '/users/signup' do 
+  error = error_for_username_signup(params[:username])
+  if error
+    session[:message] = error
+    status 422
+    erb :signup
+  else 
+    #load_user_credentials
+    file_path = get_root_file_path() + '/users.yml'
+    hashed_password = hide_password(params[:password])
+    data = YAML.load_file(file_path)
+    data[params[:username]] = hashed_password
+    File.open(file_path, 'w') do |file|
+      file.write(YAML.dump(data))
+    end 
+    session[:message] = "Sign Up Successful. Time to login!"
+    redirect "/users/signin"
+  end 
+ end
+ 
+ get '/:file_name/past_versions' do
+    
+   @files = get_file_names(past_version_path(params[:file_name]))
+  erb :past_versions
+end 
+ 
+ 

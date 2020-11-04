@@ -1,5 +1,14 @@
+<%= @upload %>
 <form action="/create" method="post">
-  <label for="filename">Add a new document:</label>
-  <input type="text" name="filename">
-  <button type="submit">Create</button>
+  <fieldset>
+    <label for="filename">Add a new document:</label>
+    <input type="text" name="filename" id="filename">
+    <button type="submit">Create</button>
+  </fieldset>
+   <!--[".txt", ".md", ".png", ".jpg", ".jpeg"]-->
+  <fieldset>
+    <label for="upload">Upload a File:</label>
+    <input type="file" name="upload" id="upload" accept="image/jpg, image/jpeg, image/png, .txt, .md">
+    <button type="submit">Create</button>
+  </fieldset>
 </form>
